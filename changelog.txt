@@ -2,30 +2,44 @@
 - BibleType is a CP application with 4 commands:
   - btselect: select start point
   - btwrite: write, one verse at a time, from the selected start point
-  - btcreate: create a new project (verses per chapter, chapters per book, book names)
-  - bttrack: track progress with a list (showing verses completed in each chapter), bar graph by book, or bar graph by chapter
+  - btcreate: create a new project (verses per chapter, chapters per book, book
+    names)
+  - bttrack: track progress with a list (showing verses completed in each
+    chapter), bar graph by book, or bar graph bychapter
 
 2.0-0
 - New JSON project format
 - WPM measurement
 
-[2.1-0]
+2.1-0
 - Upgrade to MasterMenu 2.0
 - Use os.replace() for more efficient backup
 - bttrack can show percentages at the ends of the bars
 - "!amend" support in btwrite, to easily re-do the previous verse
 
+2.2-0
+- Runs as a standalone command-line application
+- Some things that used to be arguments to BibleType's separate commands are now
+  settings, adjusted in a menu and saved to a file
+- "Press Enter to continue..." after every unusual notification
+- Can clear before displaying most menus (contextually-related menus are shown
+  together); this is the new default but can be disabled in Settings
+
 [3.0-0]
-- Companion project files for Notes and Commentaries; projects are now folders that can contain the main project and multiple such companion files
-  - Example new option because of this: prompt for each commentary section after its verses, or all sections at end of chapter or book
+- Companion project files for Notes and Commentaries; projects are now folders
+  that can contain the main project and multiple such companion files
+  - Example new option because of this: prompt for each commentary section after
+    its verses, or all sections at end of chapter or book
 - btread, to read back typed Scripture
 - btmerge, to merge the completion progress of multiple projects
 - Many more configuration settings, which are now persisted per project
   - Set them with btconfig
-- New option in btselect's project selector for "New Project", which lists *templates* and lets the user select a *template* to start from
+- New option in btselect's project selector for "New Project", which lists
+  *templates* and lets the user select a *template* to start from
   - New template format
   - btcreate now creates *templates*
-- More frequent saving in btcreate and ability to resume an interrupted btcreate sequence
+- More frequent saving in btcreate and ability to resume an interrupted btcreate
+  sequence
 - btmodify, to modify existing templates
   - This includes adding / removing companions from the project folder
 - The BibleType application now consists of multiple code files.
