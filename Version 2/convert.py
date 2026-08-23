@@ -8,7 +8,7 @@ btdir = os.getcwd()
 def btconvert1():
     # Select project
     os.chdir(btdir)
-    os.chdir("projects")
+    os.chdir("../projects")
     sys.path.append(os.getcwd())
     [ui.say(file) for file in os.listdir() if file[-3:] == ".py"]
     fileName = ui.ask("File name to convert (type out name as displayed above) (Enter to cancel)")
@@ -58,7 +58,7 @@ def btconvert1():
 def btcommakill():
     # Select project
     os.chdir(btdir)
-    os.chdir("projects")
+    os.chdir("../projects")
     sys.path.append(os.getcwd())
     [ui.say(file) for file in os.listdir() if file[-5:] == ".json"]
     fileName = ui.ask("File name to convert (type out name as displayed above) (Enter to cancel)")
@@ -100,7 +100,7 @@ def btcommakill():
 def btrestore():
     # Select project
     os.chdir(btdir)
-    os.chdir("projects")
+    os.chdir("../projects")
     sys.path.append(os.getcwd())
     [ui.say(file) for file in os.listdir() if file[-7:] == ".backup"]
     fileName = ui.ask("File name to restore (type out name as displayed above) (Enter to cancel)")

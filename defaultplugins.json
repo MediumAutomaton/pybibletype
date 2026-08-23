@@ -1,0 +1,21 @@
+{
+  "menu": {
+    "clearscreen": "default",
+    "main": "default",
+    "select": "default",
+    "settings": "default",
+    "track": "default"
+  },
+  "project": {
+    "read": "default",
+    "write": "default"
+  },
+  "tracker": {
+    "count": "default",
+    "display": "default"
+  },
+  "writer": {
+    "prompter": "default",
+    "startcheck": "default"
+  }
+}

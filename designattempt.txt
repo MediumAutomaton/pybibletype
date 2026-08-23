@@ -1,0 +1,88 @@
+DATA TYPES
+position: {
+    str bookName,
+    int chapterNumber,
+    int verseNumber
+}
+
+
+Reader:
+    DESCRIPTION
+    The distinction between project Reader and Writer only matters to the Prompter while the user is actually entering verses. If the user wants the current contents of the verse they're typing to be shown along with the prompt for that verse, the Prompter gets the existing verse from the Reader and saves the new verse to the project using the Writer. This is so that a Reader can pull a known correct verse from, say, an API, instead of from the saved project.
+
+    - __init__(fileName): Called by the writer plugin that sets up the reader. The reader may or may not do anything with the provided filename.
+
+    - verseContents(position): Get the contents of a certain verse
+
+
+
+Writer:
+    DESCRIPTION
+    The project Writer actually both reads and writes the saved project. The underlying project format and the filesystem are abstracted through the Writer, allowing the rest of BibleType to operate on multiple different project formats.
+
+    # General
+    - __init__(fileName): Opens a project file and returns a Writer that implements the interface defined here and operates on that project file (or folder if it's a BT 3 format project). Or it can return False if it fails to load the project.
+
+    - @staticmethod supportedFileType(): Returns the file type that this Writer supports.
+      If the Writer operates on a file, this can be a string of the file extension. ex. for BT 2, this returns ".json".
+      If the Writer operates on a folder, this can be a dictionary:
+      {
+        "fileType": "folder",
+        "folderContains": ["books", "project.json"]
+      }
+      The logic that sets up the Writer will use this information to perform a rudimentary evaluation of what projects are probably supported by this Writer.
+
+
+    # Metadata
+    - modifiedTime(): Returns the time, in seconds since the epoch, at which the project was last modified. If your format does not store this, just return 0.
+
+
+    # Navigate
+    - setPosition(position): Set the current working position
+
+    - getPosition(position): Get the current working position
+
+    - books(): Return the list of book names in the project
+
+    - chaptersInBook(bookName): Return the number of chapters in the specified book
+
+    - versesInChapter(bookName, chapterNumber): Return the number of verses in the specified chapter
+
+
+    # Save
+    - commitVerse(newVerseContents, advance=True): Replace the contents of the verse at the current working position. If advance is True, increment the current working position by 1 verse or, if this was the last verse in the chapter, commit the chapter.
+
+    - commitChapter(advance=False): This method exists in service of BT's traditional practice of committing a verse to memory then committing the entire chapter to disk at once. If commitVerse() saves to disk, then this method may not need to do anything. But a Writer may choose to perform various housekeeping tasks here. If advance is True, set the position to the beginning of the next chapter or, if this was the last chapter in the book, commit the book.
+
+    - commitBook(advance=False): This method exists to provide flexibility to Writers in terms of their housekeeping and how they save the project to disk. If commitVerse and/or commitChapter already save to disk, then you may not need to do anything with this method.
+
+    - saveToDisk(): This method is called to ensure that the full project is saved to disk. Probably more useful for Writers like the BT 2 project writer, which hold the entire project in memory. The BT 3 writer only loads one chapter at a time, and the chapter is always saved to disk when commitChapter() is called, so the BT 3 writer does not do anything with this method.
+
+
+    # Load
+    - verseContents(position): Get the contents of the verse at the given position
+
+    - reader(): Return an appropriate Reader for the loaded project
+      (The Reader comes from the Writer because BT 3 projects, at least, can request multiple different kinds of Reader.)
+
+
+    # Count
+    - isVerseFilled(position): Return True if the verse at the given position has been given content by the user, and return False if the user has not populated that verse
+
+    - chapterCount(bookName, chapterNumber): Return a dictionary:
+    {
+        "filled": int, the number of verses in the chapter that the user has populated
+        "total": int, the total number of verses in the chapter
+    }
+
+    - bookCount(bookName): Return a dictionary:
+    {
+        "filled": int, the number of verses in the book that the user has populated
+        "total": int, the total number of verses in the book
+    }
+
+    - projectCount(): Return a dictionary:
+    {
+        "filled": int, the number of verses in the project that the user has populated
+        "total": int, the total number of verses in the project
+    }

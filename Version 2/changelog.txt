@@ -25,6 +25,25 @@
 - Can clear before displaying most menus (contextually-related menus are shown
   together); this is the new default but can be disabled in Settings
 
+2.2-1
+- Bargraph rendering split out to new 'bargraph' module; this new renderer has a couple extra features and fixes a bug
+  - [bugfix] Always prints at exactly the correct width
+  - Truncates book name if terminal is too narrow
+  - More customizable; more easily allows for more settings in the future
+- Split progress counting into new functions that all tracking displays now use; counting is now fast and consistent
+  across all displays
+- Split out the writing of a tracking display to either console or a file to a new helper function; this is now
+  consistent across all displays and fixes some bugs found in the old implementations
+- Remove now-unused import for 'math' module
+- Fixed bug in track menu: exporting to a file once doesn't get you stuck exporting to files forever
+- Consistency: there is now *always* a colon at the end of an input prompt (including prompting for verses!)
+- Can actually change to the projects directory from the main directory instead of needing to run from the projects directory
+- Fixed missing menu title at start check
+
+2.3-0
+- Can now set the start point through commandline arguments
+- Always saves btsettings.json in the program directory, not the projects directory
+
 [3.0-0]
 - Companion project files for Notes and Commentaries; projects are now folders
   that can contain the main project and multiple such companion files
@@ -43,3 +62,7 @@
 - btmodify, to modify existing templates
   - This includes adding / removing companions from the project folder
 - The BibleType application now consists of multiple code files.
+- Plugins can do things to the writing process (probably by registering functions to be run between verses and giving
+  them some kind of access to info. like current book/chapter/verse)
+- Launch with a plugin menu
+  - Or start launcher with -d / --default option to use the defaults saved in a file
