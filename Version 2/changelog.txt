@@ -43,6 +43,8 @@
 2.3-0
 - Can now set the start point through commandline arguments
 - Always saves btsettings.json in the program directory, not the projects directory
+- Can now hit Ctrl+C (KeyboardInterrupt) to restart the verse you're currently typing
+- [bugfix] Trying to use the Track Progress menu when you don't have a project selected now pauses after the error message
 
 [3.0-0]
 - Companion project files for Notes and Commentaries; projects are now folders

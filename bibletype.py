@@ -24,5 +24,3 @@ from cliplugins.library import debug
 debug.enabled = args.debug
 
 import cliplugins.menu.main.default
-import central
-central.mainMenu = cliplugins.menu.main.default.Plugin()

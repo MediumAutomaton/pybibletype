@@ -95,7 +95,7 @@ class BibleType:
             renderOut = menu.render("callback")
             self.clear()
             print(renderOut["render"])
-            user = self.askForNumber("Select a number (Enter to cancel): ")
+            user = self.askForNumber("Select a number (Enter to save and go back): ")
             if not user:
                 break
             renderOut["mappingDict"][user]()
@@ -221,7 +221,12 @@ class BibleType:
         while self.chapterNumber <= len(self.book["chapters"]):
             self.chapter = self.book["chapters"][self.chapterNumber-1]
             while self.verseNumber <= len(self.chapter):
-                verseContents = input("[" + str(self.verseNumber) + "]: ")
+                verseContents = None
+                while not verseContents:
+                    try:
+                        verseContents = input("[" + str(self.verseNumber) + "]: ")
+                    except KeyboardInterrupt:
+                        print()
                 if verseContents == "!exit":
                     print("Exiting. Saving your work to disk...")
                     time1 = time.time()
@@ -360,6 +365,7 @@ class BibleType:
     def track(self):
         if not self.project:
             print("Select a project first!")
+            input("Press Enter to continue...")
             return
 
         if self.config["promptForExport"]:
@@ -534,8 +540,9 @@ if __name__ == "__main__":
         "chapterNumber": args.chapter,
         "verseNumber": args.verse
     }
-    if not startPoint["projectFileName"][-5:] == ".json":
-        startPoint["projectFileName"] = startPoint["projectFileName"] + ".json"
+    if startPoint["projectFileName"]:
+        if not startPoint["projectFileName"][-5:] == ".json":
+            startPoint["projectFileName"] = startPoint["projectFileName"] + ".json"
 
     bibleType = BibleType(startPoint, args.debug)
     if os.name == "nt":

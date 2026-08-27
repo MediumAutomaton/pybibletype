@@ -6,7 +6,170 @@ position: {
 }
 
 
-Reader:
+
+___plugins/expansion
+    DESCRIPTION
+    You're adding completely new functionality to BibleType! Good luck! We'll do what we can to help you.
+
+    __init__(mainMenu, manageMenu, selectMenu, trackMenu, writePrompter, settings): Receive all the main menus that you can add options to. Also receive the writePrompter, so that you can add interruptions to the normal writing process. Also receive the settings plugin, so that you can add settings to the settings menu that will get saved to disk.
+
+    The rest is up to you!
+
+
+
+___plugins/menu/main
+    DESCRIPTION
+    The main menu displayed when BibleType is started. Provides options to launch various interfaces, both those included with BibleType by default and any additional ones that expansion plugins may register with this menu plugin.
+
+    register(name, callback): Register a new menu item. The BibleType launcher will register the default items; you do not need to include any items in the main menu.
+    Tip: If you're using MasterMenu, this should call straight through to addNumberedItem(name, callback=callback).
+
+    prompt(): Present this menu to the user
+
+
+
+___plugins/menu/manage
+    DESCRIPTION
+    An interface to create, modify, and delete projects. Is responsible for starting other interfaces, including prompttemplate, modifytemplate, and others.
+
+    __init__(mainMenu, settings): Register yourself with mainMenu, and add settings if you want to.
+
+    register(name, callback): Register a new menu item
+
+    prompt(): Present this menu to the user
+
+
+
+___plugins/menu/select
+    DESCRIPTION
+    Select a project and a starting point within it.
+
+    __init__(mainMenu, settings): Register yourself with mainMenu, and add settings if you want to.
+
+    prompt(): Present this menu to the user
+
+
+
+___plugins/menu/settings
+    DESCRIPTION
+    Present a menu to change BibleType's settings.
+
+    __init__(mainMenu, settings): Register yourself with mainMenu, and receive the settings plugin that your menu will operate on.
+
+    prompt(): Present this menu to the user
+
+
+
+___plugins/menu/track
+    DESCRIPTION
+    Present a menu to track your progress in a number of different ways.
+    The default plugin adds some extras, like exporting to a file.
+
+    __init__(mainMenu, settings): Register yourself with mainMenu, and add settings if you want to (like how the default plugin adds a setting for whether it should prompt you about exporting to a file).
+
+    register(name, callback): Register a new menu item. (It's probably a progress display, but it could technically be anything.)
+
+    prompt(): Present this menu to the user
+
+
+
+___plugins/reader
+    DESCRIPTION
+    Let the user read back what they've written!
+
+    __init__(mainMenu, settings, open): Register yourself with mainMenu, and add settings if you want to. Also receive the open plugin that you can use to get the Writer for the currently selected project.
+
+    prompt(): Present this interface to the user
+
+
+
+___plugins/tracker
+    DESCRIPTION
+    Display the user's progress!
+
+    __init__(trackerMenu, open): Register yourself with trackerMenu, and receive the open plugin that you can use to get the Writer for the currently selected project.
+
+    present(): Present this tracking display to the user (your display may or may not include prompts and/or be interactive; you can kinda' do whatever you want as long as you return eventually).
+
+
+
+___plugins/prompter
+    DESCRIPTION
+    Prompt the user for verses.
+
+    __init__(settings): Add settings if you want to.
+
+    registerInterruption(callback): Register an interruption to the writing process. This lets another plugin take over between verses. A callback registered with this should take two arguments:
+    - [dict] The position of the verse that the user just wrote
+    - [bool] Whether this is the last verse in the chapter.
+
+    prompt(writer): Launch this interface using the writer provided by the startcheck.
+
+
+
+___plugins/startcheck
+    DESCRIPTION
+    Make sure the user is OK with starting at the currently selected start point.
+
+    __init__(mainMenu, settings, open, prompter): Register yourself with mainMenu, add settings if you want to, receive the open plugin, which you can use to retrieve the Writer for the currently selected project, and receive the name of the prompter plugin that you are to call prompt() on if the user says that they're OK to start.
+
+    prompt(): Do the startcheck! Don't return until after the prompter returns.
+
+
+
+___plugins/project/create/prompttemplate:
+    DESCRIPTION
+    A way to input how many verses are in each chapter of each named book in the template to be created
+
+    __init__(manageMenu): Please register yourself with manageMenu.
+
+
+
+___plugins/project/create/modifytemplate:
+    DESCRIPTION
+    An interface to modify an existing template file. Make modifications through the maketemplate plugin.
+
+    __init__(manageMenu): Please register yourself with manageMenu.
+
+
+
+### UNIPLUGINS ###
+
+
+uniplugins/project/create/makeproject:
+    DESCRIPTION
+    Turn a template file into a functioning project.
+
+    projectFromTemplate(newProjectFileName, templateFileName): Create a new project file, named newProjectFileName, from the template file named templateFileName
+
+
+uniplugins/project/create/maketemplate:
+    DESCRIPTION
+    Make or modify a template file using information provided by prompttemplate or modifytemplate. (This plugin should never need to be replaced by a different one; preferably there would be one good, well-reviewed instance of this important code.)
+
+    __init__(templateName): templateName is the name of the template file that this template maker will operate on.
+
+    addBook(bookName, chapterList): chapterList is a list of the number of verses in each chapter. For example, suppose a book has 3 chapters, with 3, 5, and 7 verses respectively. chapterList would look like this: [3, 5, 7]. This method will add the book with the given name and chapters to the template being generated.
+
+    updateChapter(bookName, chapterNumber, newNumVerses): Replace the number of verses in the given chapterNumber of the given bookName with newNumVerses
+
+    commitTemplate(): We're done adding things to or modifying the template, so make sure that the template is saved to disk.
+
+
+
+uniplugins/project/open:
+    DESCRIPTION
+    Look at a project file, determine what format it is, and return the correct kind of Writer with that project selected.
+
+    supportedFileExtensions(): Return a list of all file extensions supported across all the currently installed writer plugins. Perhaps useful if something wants to use an OS file picker; it can filter for BibleType project files.
+
+    writerForProjectFile(fileName): Return an appropriate Writer for the given project file named fileName.
+
+    currentWriter(): Return the Writer for the currently selected file (selected by the last call to writerForProjectFile()). If no file is currently selected, return None.
+
+
+
+uniplugins/project/read:
     DESCRIPTION
     The distinction between project Reader and Writer only matters to the Prompter while the user is actually entering verses. If the user wants the current contents of the verse they're typing to be shown along with the prompt for that verse, the Prompter gets the existing verse from the Reader and saves the new verse to the project using the Writer. This is so that a Reader can pull a known correct verse from, say, an API, instead of from the saved project.
 
@@ -16,12 +179,13 @@ Reader:
 
 
 
-Writer:
+uniplugins/project/write:
     DESCRIPTION
     The project Writer actually both reads and writes the saved project. The underlying project format and the filesystem are abstracted through the Writer, allowing the rest of BibleType to operate on multiple different project formats.
 
     # General
-    - __init__(fileName): Opens a project file and returns a Writer that implements the interface defined here and operates on that project file (or folder if it's a BT 3 format project). Or it can return False if it fails to load the project.
+    - __init__(fileName, selectMenu): Opens a project file and returns a Writer that implements the interface defined here and operates on that project file (or folder if it's a BT 3 format project). Or it can return False if it fails to load the project.
+     Once the project has been loaded, register additional selection items with selectMenu. These are usually Book, Chapter, and Verse.
 
     - @staticmethod supportedFileType(): Returns the file type that this Writer supports.
       If the Writer operates on a file, this can be a string of the file extension. ex. for BT 2, this returns ".json".
@@ -86,3 +250,15 @@ Writer:
         "filled": int, the number of verses in the project that the user has populated
         "total": int, the total number of verses in the project
     }
+
+
+
+uniplugins/settings:
+    DESCRIPTION
+    Manages how settings are saved to and loaded from disk.
+
+    allSettings(): Return a dictionary of each setting and its value
+
+    getSetting(setting): Get the value of a setting
+
+    setSetting(setting, value): Set the value of a setting
