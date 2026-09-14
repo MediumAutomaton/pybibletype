@@ -386,12 +386,12 @@ class BibleType:
         filledVerses = totalVerses - chapter.count(None)
         return {"total":totalVerses, "filled":filledVerses}
 
-    def bookCount(self, bookName):
-        numChapters = len(self.project["books"][bookName]["chapters"])
+    def bookCount(self, bookNumber):
+        numChapters = len(self.project["books"][bookNumber-1]["chapters"])
         totalVerses = 0
         filledVerses = 0
         for chapterNumber in range(1, numChapters + 1):
-            count = self.chapterCount(bookName, chapterNumber)
+            count = self.chapterCount(bookNumber, chapterNumber)
             totalVerses += count["total"]
             filledVerses += count["filled"]
         return {"total":totalVerses, "filled":filledVerses}
@@ -443,7 +443,7 @@ class BibleType:
     def progressBarGraphByBook(self):
         outLines = []
         outLines.append("Project: " + self.project["name"])
-        for bookIdx, book in enumerate(self.project["books"]):
+        for bookIdx, book in enumerate(self.project["books"], 1):
             self.bgRenderer.name = book["name"]
             outLines.append(self.bgRenderer.render(self.percentageFromCount(self.bookCount(bookIdx))))
         self.present(outLines)
