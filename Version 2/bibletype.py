@@ -1,4 +1,4 @@
-version = "2.3-0"
+version = "2.3-1"
 
 import os
 import json
@@ -57,16 +57,26 @@ class BibleType:
         if self.config["clearForMenus"]:
             os.system(self.config["clrComm"])
 
-    def askForNumber(self, prompt):
+    def pause(self, msg):
+        print(msg)
+        input("Press Enter to continue...")
+
+    def askForNumber(self, prompt, min=1, max=None):
         while True:
             user = input(prompt)
-            try:
-                if user:
-                    return int(user)
+            if not user:
                 return ""
+            try:
+                user = int(user)
+                if user < min or (max and user > max):
+                    if max:
+                        self.pause("Number must be between " + str(min) + " and " + str(max))
+                    else:
+                        self.pause("Number must be greater than " + str(min))
+                else:
+                    return user
             except:
-                print("Please enter a number.")
-                input("Press Enter to continue...")
+                self.pause("Please enter a number.")
         
     def changeToProjectsDir(self):
         if os.getcwd()[-8:] != "projects":
@@ -79,8 +89,7 @@ class BibleType:
 
 
     def selectionMenu(self):
-        menu = mastermenu.Menu()
-        menu.title = "BibleType Project Selection"
+        menu = mastermenu.Menu("BibleType Project Selection")
         projectItem = menu.addNumberedItem("Project", callback=self.selectProject)
         bookItem = menu.addNumberedItem("Book", callback=self.selectBook)
         chapterItem = menu.addNumberedItem("Chapter", callback=self.selectChapter)
@@ -95,7 +104,7 @@ class BibleType:
             renderOut = menu.render("callback")
             self.clear()
             print(renderOut["render"])
-            user = self.askForNumber("Select a number (Enter to save and go back): ")
+            user = self.askForNumber("Select a number (Enter to save and go back): ", max=menu.size())
             if not user:
                 break
             renderOut["mappingDict"][user]()
@@ -115,13 +124,12 @@ class BibleType:
     def selectProject(self):
         self.changeToProjectsDir()
             
-        fileMenu = mastermenu.Menu()
-        fileMenu.title = "Available Project Files"
+        fileMenu = mastermenu.Menu("Available Project Files")
         [fileMenu.addNumberedItem(file[:-5]) for file in os.listdir() if file[-5:] == ".json"]
         renderOut = fileMenu.render("name")
         print(renderOut["render"])
 
-        num = self.askForNumber("Select # of project (Enter to cancel): ")
+        num = self.askForNumber("Select # of project (Enter to cancel): ", max=fileMenu.size())
         if not num:
             return
         name = renderOut["mappingDict"][num] + ".json"
@@ -134,15 +142,13 @@ class BibleType:
 
     def selectBook(self):
         if not self.project:
-            print("Select a project first!")
-            input("Press Enter to continue...")
+            self.pause("Select a project first!")
             return
-        bookMenu = mastermenu.Menu()
-        bookMenu.title = "Books"
+        bookMenu = mastermenu.Menu("Books")
         [bookMenu.addNumberedItem(book["name"]) for book in self.project["books"]]
         renderOut = bookMenu.render("name")
         print(renderOut["render"])
-        user = self.askForNumber("Select # of book (Enter to cancel): ")
+        user = self.askForNumber("Select # of book (Enter to cancel): ", max=bookMenu.size())
         if not user:
             return
         self.book = self.project["books"][user-1]
@@ -151,54 +157,41 @@ class BibleType:
 
     def selectChapter(self):
         if not self.book:
-            print("Select a book first!")
-            input("Press Enter to continue...")
+            self.pause("Select a book first!")
             return
         numChapters = len(self.book["chapters"])
         print("This book has " + str(numChapters) + " chapters")
-        user = self.askForNumber("Select a chapter (Enter to cancel): ")
+        user = self.askForNumber("Select a chapter (Enter to cancel): ", max=numChapters)
         if not user:
             return
-        if 0 < user and user <= numChapters:
-            self.chapterNumber = user
-            self.chapter = self.book["chapters"][user-1]
-        else:
-            print("That chapter doesn't seem to exist")
-            input("Press Enter to continue...")
+        self.chapterNumber = user
+        self.chapter = self.book["chapters"][user-1]
 
     def selectVerse(self):
         if not self.chapter:
-            print("Select a chapter first!")
-            input("Press Enter to continue...")
+            self.pause("Select a chapter first!")
             return
         numVerses = len(self.chapter)
         print("This chapter has " + str(numVerses) + " verses")
-        user = self.askForNumber("Select a verse (Enter to cancel): ")
+        user = self.askForNumber("Select a verse (Enter to cancel): ", max=numVerses)
         if not user:
             return
-        if 0 < user and user <= numVerses:
-            self.verseNumber = user
-        else:
-            print("That verse doesn't seem to exist")
-            input("Press Enter to continue...")
+        self.verseNumber = user
 
 
     def write(self):
         if not (self.project and self.bookName and self.chapterNumber and self.verseNumber):
-            print("Select a start point with 'btselect' first!")
-            input("Press Enter to continue...")
+            self.pause("Select a start point with 'btselect' first!")
             return
         if self.verseNumber > len(self.chapter):
-            print("You're at the end of a chapter! Please select a new start point with 'btselect' first.")
-            input("Press Enter to continue...")
+            self.pause("You're at the end of a chapter! Please select a new start point with 'btselect' first.")
             return
         if self.config["wpm"]:
             startChapterNumber = self.chapterNumber
             startVerseNumber = self.verseNumber
             print("Will calculate WPM when you're done, and will account for time lost to saving and 'Next chapter?' prompts.")
         
-        display = mastermenu.Menu()
-        display.title = "Starting Location"
+        display = mastermenu.Menu("Starting Location")
         display.addUnnumberedItem("Project", self.project["name"])
         display.addUnnumberedItem("Book", self.book["name"])
         display.addUnnumberedItem("Chapter", self.chapterNumber)
@@ -253,8 +246,7 @@ class BibleType:
                         self.calculateWPM(startChapterNumber, startVerseNumber, startTime, lostTime)
                     return
             else:
-                print("Reached end of book. Please use 'btselect' to select another one.")
-                input("Press Enter to continue...")
+                self.pause("Reached end of book. Please use 'btselect' to select another one.")
                 if self.config["wpm"]:
                     self.calculateWPM(startChapterNumber, startVerseNumber, startTime, lostTime)
                 return
@@ -364,8 +356,7 @@ class BibleType:
 
     def track(self):
         if not self.project:
-            print("Select a project first!")
-            input("Press Enter to continue...")
+            self.pause("Select a project first!")
             return
 
         if self.config["promptForExport"]:
@@ -374,8 +365,7 @@ class BibleType:
             else:
                 self.filename = None
 
-        menu = mastermenu.Menu()
-        menu.title = "Select View"
+        menu = mastermenu.Menu("Select View")
         menu.addNumberedItem("List", callback=bibleType.progressList)
         menu.addNumberedItem("Bar Graph by Book", callback=bibleType.progressBarGraphByBook)
         menu.addNumberedItem("Bar Graph by Chapter", callback=bibleType.progressBarGraphByChapter)
@@ -383,14 +373,15 @@ class BibleType:
         renderOut = menu.render("callback")
         self.clear()
         print(renderOut["render"])
-        user = self.askForNumber("Select a number (Enter to cancel): ")
+        user = self.askForNumber("Select a number (Enter to cancel): ", max=menu.size())
         if user:
             self.bgRenderer.width = self.getTermWidth()
+            self.bgRenderer.showPercent = not self.config["nopercent"]
             renderOut["mappingDict"][user]()
 
 
-    def chapterCount(self, bookName, chapterNumber):
-        chapter = self.project["books"][bookName]["chapters"][chapterNumber-1]
+    def chapterCount(self, bookNumber, chapterNumber):
+        chapter = self.project["books"][bookNumber-1]["chapters"][chapterNumber-1]
         totalVerses = len(chapter)
         filledVerses = totalVerses - chapter.count(None)
         return {"total":totalVerses, "filled":filledVerses}
@@ -417,19 +408,16 @@ class BibleType:
                     f.write(render)
                 print("Wrote file")
             except Exception as x:
-                print("Failed to save file")
                 self.debug(x)
-                input("Press Enter to continue...")
+                self.pause("Failed to save file")
         else:
-            print(render)
-            input("Press Enter to continue...")
+            self.pause(render)
 
 
     def progressList(self):
         outLines = ["Project: " + self.project["name"]]
         for bookIdx, book in enumerate(self.project["books"]):
-            menu = mastermenu.Menu()
-            menu.title = book["name"]
+            menu = mastermenu.Menu(book["name"])
             for chapterIdx, chapter in enumerate(book["chapters"]):
                 count = self.chapterCount(bookIdx, chapterIdx+1)
                 menu.addNumberedItem(str(count["filled"]) + " of " + str(count["total"]) + " verses typed")
@@ -439,7 +427,7 @@ class BibleType:
 
     def getTermWidth(self):
         if self.filename:
-            user = self.askForNumber("How wide should the file be?")
+            user = self.askForNumber("How wide should the file be?", min=13)
             if not user:
                 print("Using default of 80 columns")
                 return 80
@@ -448,7 +436,7 @@ class BibleType:
             try:
                 termWidth = os.get_terminal_size().columns
             except:
-                termWidth = int(input("How wide is your terminal?: "))
+                termWidth = self.askForNumber("How wide is your terminal?: ", min=13)
             return termWidth
 
 
@@ -466,7 +454,7 @@ class BibleType:
         outLines.append("|" * (len(self.project["name"]) + 8) + "\n||| " + self.project["name"] + " |||\n" + "|" * (len(self.project["name"]) + 8) + "\n")
         for bookIdx, book in enumerate(self.project["books"], 1):
             outLines.append("\nBook: " + book["name"])
-            for idx, chapter in enumerate(book["chapters"]):
+            for idx in range(1, len(book["chapters"])+1):
                 self.bgRenderer.name = str(idx)
                 outLines.append(self.bgRenderer.render(self.percentageFromCount(self.chapterCount(bookIdx, idx))))
         self.present(outLines)
@@ -474,45 +462,40 @@ class BibleType:
 
     def settingsMenu(self):
         while True:
-            menu = mastermenu.Menu()
-            menu.title = "BibleType Settings"
+            menu = mastermenu.Menu("BibleType Settings")
             for key in self.config.keys():
                 menu.addNumberedItem(self.configLongNames[key], str(self.config[key]), key)
             render = menu.render("callback")
             self.clear()
             print(render["render"])
-            user = self.askForNumber("Select the number of the setting you want to change (Enter to cancel): ")
+            user = self.askForNumber("Select the number of the setting you want to change (Enter to cancel): ", max=menu.size())
             if not user:
                 try:
                     if os.getcwd()[-8:] == "projects":
                         filename = "../btsettings.json"
                     else:
                         filename = "btsettings.json"
-                    with open("btsettings.json", "w") as f:
+                    with open(filename, "w") as f:
                         json.dump(self.config, f, indent="\t")
                 except:
-                    print("Failed to save settings to file")
+                    self.pause("Failed to save settings to file")
                 break
-            if user > len(menu.items):
-                print("That number is too high!")
-                input("Press Enter to continue...")
+            key = render["mappingDict"][user]
+            if isinstance(self.config[key], bool):
+                self.config[key] = not self.config[key]
             else:
-                key = render["mappingDict"][user]
-                if isinstance(self.config[key], bool):
-                    self.config[key] = not self.config[key]
+                newVal = input("Enter new value: ")
+                if isinstance(self.config[key], int):
+                    self.config[key] = int(newVal)
                 else:
-                    newVal = input("Enter new value: ")
-                    if isinstance(self.config[key], int):
-                        self.config[key] = int(newVal)
-                    else:
-                        self.config[key] = newVal
+                    self.config[key] = newVal
 
 
 # Run Standalone
 if __name__ == "__main__":
     argparser = ArgumentParser()
     argparser.add_argument("-d", "--debug", help="Show extra debug info when stuff goes wrong", action="store_true")
-    argparser.add_argument("-n", "--noreadline", help="Don't use readline", action="store_true")
+    argparser.add_argument("-r", "--readline", help="Use readline", action="store_true")
     argparser.add_argument("--ver", "--version", help="Show program version then exit", action="store_true")
     argparser.add_argument("-p", "--project", help="Load a project file on startup", action="store")
     argparser.add_argument("-b", "--book", help="Select a book on startup. Requires --project.", action="store")
@@ -523,7 +506,7 @@ if __name__ == "__main__":
         print("pybibletype " + version)
         exit()
 
-    if not args.noreadline:
+    if args.readline:
         import readline
 
     try:
@@ -557,11 +540,9 @@ if __name__ == "__main__":
         with open(fileName, "r") as f:
             bibleType.config.update(json.load(f))
     except:
-        print("Failed to load settings from file; using defaults.")
-        print("This is normal if you have never saved them before.")
+        print("Failed to load settings from file; using defaults. This is normal if you have never saved them before.")
 
-    mainMenu = mastermenu.Menu()
-    mainMenu.title = "BibleType"
+    mainMenu = mastermenu.Menu("BibleType")
     mainMenu.addNumberedItem("Select Start Point", callback=bibleType.selectionMenu)
     mainMenu.addNumberedItem("Start Writing", callback=bibleType.write)
     mainMenu.addNumberedItem("Track Progress", callback=bibleType.track)
@@ -571,13 +552,9 @@ if __name__ == "__main__":
         bibleType.clear()
         render = mainMenu.render("callback")
         print(render["render"])
-        user = bibleType.askForNumber("Select a number (Enter to exit program): ")
+        user = bibleType.askForNumber("Select a number (Enter to exit program): ", max=mainMenu.size())
         if not user:
-            if input("Are you sure you want to exit? [y/n]: ").lower() in ["y", "yes"]:
+            if input("Are you sure you want to exit? [y/N]: ").lower() in ["y", "yes"]:
                 exit()
         else:
-            if user < 1 or user > 5:
-                print("Number must be between 1 and 5")
-                input("Press Enter to continue...")
-            else:
-                render["mappingDict"][int(user)]()
+            render["mappingDict"][int(user)]()

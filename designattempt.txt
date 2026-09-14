@@ -7,11 +7,20 @@ position: {
 
 
 
+
+
+
+
 ___plugins/expansion
+    Call a function in the module that returns an object that then you can work with.
+
     DESCRIPTION
     You're adding completely new functionality to BibleType! Good luck! We'll do what we can to help you.
 
-    __init__(mainMenu, manageMenu, selectMenu, trackMenu, writePrompter, settings): Receive all the main menus that you can add options to. Also receive the writePrompter, so that you can add interruptions to the normal writing process. Also receive the settings plugin, so that you can add settings to the settings menu that will get saved to disk.
+    __init__(builder): Receive all the main menus that you can add options to. Also receive the writePrompter, so that you can add interruptions to the normal writing process. Also receive the settings plugin, so that you can add settings to the settings menu that will get saved to disk.
+
+    (Right now, the builder wraps mainMenu, manageMenu, selectMenu, trackMenu, writePrompter, and settings.
+    Maybe it should be an "API"; ex. it can call a method to get the current position.)
 
     The rest is up to you!
 
@@ -186,6 +195,8 @@ uniplugins/project/write:
     # General
     - __init__(fileName, selectMenu): Opens a project file and returns a Writer that implements the interface defined here and operates on that project file (or folder if it's a BT 3 format project). Or it can return False if it fails to load the project.
      Once the project has been loaded, register additional selection items with selectMenu. These are usually Book, Chapter, and Verse.
+
+    - fileName(): Return the fine name of the currently selected project
 
     - @staticmethod supportedFileType(): Returns the file type that this Writer supports.
       If the Writer operates on a file, this can be a string of the file extension. ex. for BT 2, this returns ".json".

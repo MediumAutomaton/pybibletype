@@ -1,5 +1,2 @@
-__Folders__
-- cliplugins
-- guiplugins
-- plugindocs
-- projects
+- Separate menu *logic* from menu *data*
+- 

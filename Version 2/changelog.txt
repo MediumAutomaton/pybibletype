@@ -46,6 +46,14 @@
 - Can now hit Ctrl+C (KeyboardInterrupt) to restart the verse you're currently typing
 - [bugfix] Trying to use the Track Progress menu when you don't have a project selected now pauses after the error message
 
+2.3-1
+- Now *actually* always saves btsettings.json in the program directory, not the projects directory
+- Internal architectural improvements
+- Change the --noreadline argument to the --readline argument, making *not* using readline the default behavior. This is
+  because it was discovered that readline is not available on Windows.
+- Percents are now shown at ends of bargraphs if you have that setting enabled
+- Terminal width prompt now goes through the same askForNumber method as every other number prompt
+
 [3.0-0]
 - Companion project files for Notes and Commentaries; projects are now folders
   that can contain the main project and multiple such companion files

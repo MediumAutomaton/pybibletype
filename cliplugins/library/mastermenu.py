@@ -1,5 +1,5 @@
 # MasterMenu object-oriented menu builder and renderer
-# Version 2.1-0
+# Version 2.2-0
 
 # Exceptions
 class InvalidSelectBy(Exception):
@@ -51,8 +51,8 @@ class MenuFormat:
 
 
 class Menu:
-    def __init__(self):
-        self.title = ""
+    def __init__(self, title=""):
+        self.title = title
         self.items = []
 
     def size(self):
