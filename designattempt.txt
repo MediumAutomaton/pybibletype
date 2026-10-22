@@ -22,7 +22,43 @@ ___plugins/expansion
     (Right now, the builder wraps mainMenu, manageMenu, selectMenu, trackMenu, writePrompter, and settings.
     Maybe it should be an "API"; ex. it can call a method to get the current position.)
 
+    Here's your API:
+
+    addMainMenuItem(name, callback): Add an itme to the main menu
+
+    addSelectMenuItem(name, data, callback): Add an item to the select menu, with default data if you want
+
+    addTrackMenuItem(name, callback): Add something (usually a progress tracking display) to the tracker menu
+
+    addManageMenuItem(name, callback): Add something to the manage menu
+
+    open(): Access the open plugin, which you can use for things like accessing the writer for the currently selected project, or opening another project (the commentary plugin could do this, and keep its own writer without messing with the rest of the program's state at all)
+
+    addWriterInterruption(callback): Register an interruption to the writing process. This lets another plugin take over between verses. A callback registered with this should take two arguments:
+    - [dict] The position of the verse that the user just wrote
+    - [bool] Whether this is the last verse in the chapter.
+
     The rest is up to you!
+
+
+
+___plugins/menu
+    DESCRIPTION
+    The main menu system for BibleType.
+
+    __init__(): Whatever you want to do. You'll get instantiated by the plugin manager.
+
+    addMainMenuItem(name, callback): Add an item to the main menu
+
+    addSelectMenuItem(name, data, callback): Add an item to the select menu, with default data if you want
+
+    addTrackMenuItem(name, callback): Add something (usually a progress tracking display) to the tracker menu
+
+    addManageMenuItem(name, callback): Add something to the manage menu
+
+    presentMainMenu(): Called by the plugin manager once all the plugins are ready to go. This launches the menu that the user will interact with.
+
+    This consolidated menu plugin supercedes all the smaller menu plugins below.
 
 
 
@@ -168,7 +204,7 @@ uniplugins/project/create/maketemplate:
 
 uniplugins/project/open:
     DESCRIPTION
-    Look at a project file, determine what format it is, and return the correct kind of Writer with that project selected.
+    Look at a project file, determine what format it is, and return the correct kind of Writer with that project selected. The backend for the menu plugin's first built-in selectMenu item to let users choose a project.
 
     supportedFileExtensions(): Return a list of all file extensions supported across all the currently installed writer plugins. Perhaps useful if something wants to use an OS file picker; it can filter for BibleType project files.
 
@@ -196,7 +232,11 @@ uniplugins/project/write:
     - __init__(fileName, selectMenu): Opens a project file and returns a Writer that implements the interface defined here and operates on that project file (or folder if it's a BT 3 format project). Or it can return False if it fails to load the project.
      Once the project has been loaded, register additional selection items with selectMenu. These are usually Book, Chapter, and Verse.
 
-    - fileName(): Return the fine name of the currently selected project
+    - fileName(): Return the file name of the currently selected project
+
+    - filePath(): Return the full file path of the currently selected project
+
+    - pluginDataPath(): Return the full path of the plugin data folder (For BT 2 projects, this folder is created on-demand and sits next to the project. For BT 3 projects, this folder always exists and is contained within the overall project folder.)
 
     - @staticmethod supportedFileType(): Returns the file type that this Writer supports.
       If the Writer operates on a file, this can be a string of the file extension. ex. for BT 2, this returns ".json".
@@ -209,7 +249,9 @@ uniplugins/project/write:
 
 
     # Metadata
-    - modifiedTime(): Returns the time, in seconds since the epoch, at which the project was last modified. If your format does not store this, just return 0.
+    - modifiedTime(): Returns the time, in seconds since the epoch, at which the project was last modified. If your format does not store this, return False.
+
+    - lastPosition(): Returns the position of the verse that was last edited. If your format does not store this, return False.
 
 
     # Navigate
@@ -268,8 +310,12 @@ uniplugins/settings:
     DESCRIPTION
     Manages how settings are saved to and loaded from disk.
 
+    __init__(): Initialization stuff. Probably load settings from disk.
+
     allSettings(): Return a dictionary of each setting and its value
 
     getSetting(setting): Get the value of a setting
 
-    setSetting(setting, value): Set the value of a setting
+    setSetting(setting, value): Set the value of a setting. Will raise WrongTypeError if the value is of the wrong type. Will raise NoSuchSettingError if that setting does not exist.
+
+    addSetting(setting, default): Use this to add a new setting without overwriting the user-set value that might be there if the setting has been added and changed in previous runs of the program. And a user-set setting that is not added on this run (perhaps the plugin that added it was disabled) will not be accessible during this run.

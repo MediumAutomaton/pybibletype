@@ -69,6 +69,11 @@
   - btcreate now creates *templates*
 - More frequent saving in btcreate and ability to resume an interrupted btcreate
   sequence
+  - Instead of the simple sequential prompting, use hierarchical menus! Like a book menu, which shows all the books so
+  far, and the last two options are "Add Book" and "Remove Book", and the data for each item is how many chapters the
+  book has, and when you go into a book, it shows a menu listing the chapters, with the same Add and Remove items at the
+  end, and each item shows how many verses are in that chapter. And then you can select a chapter to modify how many
+  verses it has. And then you can load up this menu on an existing project, so you can easily edit that project.
 - btmodify, to modify existing templates
   - This includes adding / removing companions from the project folder
 - The BibleType application now consists of multiple code files.

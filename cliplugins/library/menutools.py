@@ -11,29 +11,32 @@ def clear():
     osSystem(clrComm)
 
 
-def askForNumber(prompt, default):
-    while True:
-        user = input(prompt)
-        try:
-            if user:
-                return int(user)
-            if default:
-                print("Using default of " + str(default))
-                return default
-            return ""
-        except:
-            print("Please enter a number.")
-            input("Press Enter to continue...")
-
-
-def confirm(prompt):
-    return input(prompt + " [y/n]: ").lower() in ["y", "yes"]
-
-
 def pause(msg):
     if msg:
         print(msg)
     input("Press Enter to continue...")
+
+
+def askForNumber(prompt, min=1, max=None):
+    while True:
+        user = input(prompt)
+        if not user:
+            return ""
+        try:
+            user = int(user)
+            if user < min or (max and user > max):
+                if max:
+                    pause("Number must be between " + str(min) + " and " + str(max))
+                else:
+                    pause("Number must be greater than " + str(min))
+            else:
+                return user
+        except:
+            pause("Please enter a number.")
+
+
+def confirm(prompt):
+    return input(prompt + " [y/n]: ").lower() in ["y", "yes"]
 
 
 def getTermWidth(prompt):
