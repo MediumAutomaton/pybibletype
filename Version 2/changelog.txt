@@ -56,6 +56,7 @@
 
 2.3-2
 - List progress tracker works again
+- Short version argument is now -ver instead of --ver (and now it's the first argument listed in --help)
 
 [3.0-0]
 - Companion project files for Notes and Commentaries; projects are now folders
