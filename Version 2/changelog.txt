@@ -54,6 +54,9 @@
 - Percents are now shown at ends of bargraphs if you have that setting enabled
 - Terminal width prompt now goes through the same askForNumber method as every other number prompt
 
+2.3-2
+- List progress tracker works again
+
 [3.0-0]
 - Companion project files for Notes and Commentaries; projects are now folders
   that can contain the main project and multiple such companion files
