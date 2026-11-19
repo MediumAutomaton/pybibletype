@@ -494,15 +494,15 @@ class BibleType:
 # Run Standalone
 if __name__ == "__main__":
     argparser = ArgumentParser()
+    argparser.add_argument("-ver", "--version", help="Show program version then exit", action="store_true")
     argparser.add_argument("-d", "--debug", help="Show extra debug info when stuff goes wrong", action="store_true")
     argparser.add_argument("-r", "--readline", help="Use readline", action="store_true")
-    argparser.add_argument("--ver", "--version", help="Show program version then exit", action="store_true")
     argparser.add_argument("-p", "--project", help="Load a project file on startup", action="store")
     argparser.add_argument("-b", "--book", help="Select a book on startup. Requires --project.", action="store")
     argparser.add_argument("-c", "--chapter", help="Select a chapter on startup. Requires --project and --book.", action="store")
     argparser.add_argument("-v", "--verse", help="Select a verse on startup. Requires --project, --book, and --chapter.", action="store")
     args = argparser.parse_args()
-    if args.ver:
+    if args.version:
         print("pybibletype " + version)
         exit()
 
