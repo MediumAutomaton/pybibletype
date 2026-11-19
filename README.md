@@ -1,7 +1,7 @@
 # pybibletype
 A Bible typer written in Python. Can also display your progress in a few different ways.
 
-_Progress on this project depends on me having time for it, which is not terribly common at the moment. When I do have time, I am trying to prepare for a major refactoring into Version 3. So sorry that it's a little disorganized right now. The file you'll want to run is "Version 2/bibletype.py"._
+This is the 'main' branch. This has the stable Version 2 of this project. Version 3 is in development on the 'version3' branch.
 
 This project cannot show the text you need to enter, and it cannot figure out where you made mistakes, because it does not have access to the text of the Bible. It only knows how many verses are in each chapter and how many chapters are in each book.
 
