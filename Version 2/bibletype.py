@@ -502,7 +502,7 @@ if __name__ == "__main__":
     argparser.add_argument("-c", "--chapter", help="Select a chapter on startup. Requires --project and --book.", action="store")
     argparser.add_argument("-v", "--verse", help="Select a verse on startup. Requires --project, --book, and --chapter.", action="store")
     args = argparser.parse_args()
-    if args.ver:
+    if args.version:
         print("pybibletype " + version)
         exit()
 
