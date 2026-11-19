@@ -1,4 +1,4 @@
-version = "2.3-1"
+version = "2.3-2"
 
 import os
 import json
@@ -419,7 +419,7 @@ class BibleType:
         for bookIdx, book in enumerate(self.project["books"]):
             menu = mastermenu.Menu(book["name"])
             for chapterIdx, chapter in enumerate(book["chapters"]):
-                count = self.chapterCount(bookIdx, chapterIdx+1)
+                count = self.chapterCount(bookIdx+1, chapterIdx+1)
                 menu.addNumberedItem(str(count["filled"]) + " of " + str(count["total"]) + " verses typed")
             outLines.append("\n" + menu.render()["render"])
         self.present(outLines)
