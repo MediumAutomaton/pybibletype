@@ -1,2 +1,0 @@
-The "library" directory contains libraries that might be used by other plugins.
-It must contain a *libcheck.py*, but otherwise the contents of this folder might depend on what other plugins you have installed.
